@@ -38,6 +38,21 @@ describe('HTTP Route Integration Tests', () => {
             const res = await request(app).get('/admin/stats');
             expect(res.status).toBe(401);
         });
+
+        it('should reject unauthenticated access to /admin/overview with 401', async () => {
+            const res = await request(app).get('/admin/overview');
+            expect(res.status).toBe(401);
+        });
+
+        it('should reject unauthenticated access to /membership with 401', async () => {
+            const res = await request(app).get('/membership');
+            expect(res.status).toBe(401);
+        });
+
+        it('should reject unauthenticated access to /role with 401', async () => {
+            const res = await request(app).get('/role');
+            expect(res.status).toBe(401);
+        });
     });
 
     describe('Static SPA Fallback', () => {

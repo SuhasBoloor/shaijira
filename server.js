@@ -9,6 +9,7 @@ const organizationRoute = require('./src/routes/organizationRoutes')
 const taskRoute = require('./src/routes/taskRoutes')
 const projectRoute = require('./src/routes/projectRoutes')
 const membershipRoute = require('./src/routes/membershipRoutes')
+const roleRoute = require('./src/routes/roleRoutes')
 const adminRoute = require('./src/routes/adminRoutes')
 const app = express()
 
@@ -20,6 +21,7 @@ app.use("/org", organizationRoute)
 app.use("/project", projectRoute)
 app.use("/task", taskRoute)
 app.use("/membership", membershipRoute)
+app.use("/role", roleRoute)
 app.use("/admin", adminRoute) 
 
 app.get("/health", async (req, res) => {
@@ -44,6 +46,7 @@ app.use((req, res, next) => {
         req.path.startsWith('/project') || 
         req.path.startsWith('/task') || 
         req.path.startsWith('/membership') || 
+        req.path.startsWith('/role') || 
         req.path.startsWith('/admin') || 
         req.path.startsWith('/health')) {
         return next();

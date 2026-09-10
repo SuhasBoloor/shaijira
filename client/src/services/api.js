@@ -61,10 +61,23 @@ export const api = {
     deleteTask: (id) => request(`/task/${id}`, { method: 'DELETE' }),
 
     // Memberships
-    addOrgMember: (userId, roleId) => request('/membership', { method: 'POST', body: JSON.stringify({ userId, roleId }) }),
-    removeOrgMember: (userId, roleId) => request('/membership', { method: 'DELETE', body: JSON.stringify({ userId, roleId }) }),
+    getOrgMembers: () => request('/membership'),
+    addOrgMember: (userOrParams, roleId) => {
+        const body = typeof userOrParams === 'object' ? userOrParams : { userId: userOrParams, roleId };
+        return request('/membership', { method: 'POST', body: JSON.stringify(body) });
+    },
+    removeOrgMember: (userOrParams, roleId) => {
+        const body = typeof userOrParams === 'object' ? userOrParams : { userId: userOrParams, roleId };
+        return request('/membership', { method: 'DELETE', body: JSON.stringify(body) });
+    },
+
+    // Roles & Permissions
+    getOrgRoles: () => request('/role'),
+    createRole: (name, permissions) => request('/role', { method: 'POST', body: JSON.stringify({ name, permissions }) }),
+    getAllPermissions: () => request('/role/permissions'),
 
     // SuperAdmin
     getAdminStats: () => request('/admin/stats'),
+    getAdminOverview: () => request('/admin/overview'),
     seedData: () => request('/admin/seed', { method: 'POST' })
 };
