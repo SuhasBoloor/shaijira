@@ -7,10 +7,15 @@ service redis-server start
 echo "Starting PostgreSQL..."
 service postgresql start
 
-echo "Configuring PostgreSQL database..."
-su - postgres -c "psql -c \"CREATE USER postgres WITH PASSWORD 'postgres';\"" || true
-su - postgres -c "psql -c \"ALTER USER postgres WITH SUPERUSER;\"" || true
-su - postgres -c "psql -c \"CREATE DATABASE rbac_app OWNER postgres;\"" || true
+echo "Configuring PostgreSQL database & authentication..."
+# Allow local connections inside the container
+sed -i 's/scram-sha-256/trust/g' /etc/postgresql/*/main/pg_hba.conf 2>/dev/null || true
+sed -i 's/md5/trust/g' /etc/postgresql/*/main/pg_hba.conf 2>/dev/null || true
+su - postgres -c "psql -c 'SELECT pg_reload_conf();'" || true
+
+# Set postgres user password to postgres
+su - postgres -c "psql -c \"ALTER USER postgres WITH PASSWORD 'postgres' SUPERUSER;\"" || true
+su - postgres -c "psql -c \"CREATE DATABASE rbac_app OWNER postgres;\"" 2>/dev/null || true
 
 if [ -z "$DATABASE_URL" ]; then
     export DATABASE_URL="postgres://postgres:postgres@localhost:5432/rbac_app"
