@@ -1,4 +1,4 @@
-﻿jest.mock('../../src/repository/userRepository');
+jest.mock('../../src/repository/userRepository');
 jest.mock('bcrypt');
 jest.mock('jsonwebtoken');
 
@@ -67,6 +67,7 @@ describe("Auth Service Unit Tests", () => {
             expect(result).toEqual({
                 id: "u1",
                 username: "alice",
+                isSuperAdmin: false,
                 token: "mocked.jwt.token"
             });
             expect(jwt.sign).toHaveBeenCalled();

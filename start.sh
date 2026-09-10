@@ -17,6 +17,10 @@ su - postgres -c "psql -c 'SELECT pg_reload_conf();'" || true
 su - postgres -c "psql -c \"ALTER USER postgres WITH PASSWORD 'postgres' SUPERUSER;\"" || true
 su - postgres -c "psql -c \"CREATE DATABASE rbac_app OWNER postgres;\"" 2>/dev/null || true
 
+# Initialize all database tables and types directly via SQL
+echo "Applying database schema from init.sql..."
+su - postgres -c "psql -d rbac_app -f /app/init.sql" || true
+
 if [ -z "$DATABASE_URL" ]; then
     export DATABASE_URL="postgres://postgres:postgres@localhost:5432/rbac_app"
 fi
@@ -33,10 +37,7 @@ if [ -z "$PORT" ]; then
     export PORT="3000"
 fi
 
-echo "Syncing database schema..."
-npx drizzle-kit push --force || true
-
-echo "Seeding baseline permissions..."
+echo "Seeding baseline permissions and SuperAdmin..."
 node src/seed.js || true
 
 echo "Launching Shai-Jira on port $PORT..."

@@ -18,6 +18,8 @@ export function App() {
     const [toast, setToast] = useState({ message: null, type: 'error' });
     const [newOrgName, setNewOrgName] = useState('');
     const [loadingOrg, setLoadingOrg] = useState(false);
+    const [userOrgs, setUserOrgs] = useState([]);
+    const [loadingOrgsList, setLoadingOrgsList] = useState(true);
 
     const showToast = (message, type = 'error') => {
         setToast({ message, type });
@@ -25,6 +27,34 @@ export function App() {
             setToast({ message: null, type: 'error' });
         }, 4000);
     };
+
+    const fetchUserOrgs = async () => {
+        if (!token) return;
+        try {
+            setLoadingOrgsList(true);
+            const res = await api.getUserOrgs();
+            const orgs = res.data || [];
+            setUserOrgs(orgs);
+            if (orgs.length > 0) {
+                const current = orgs.find(o => o.id === activeOrgId);
+                if (current) {
+                    switchOrg(current.id, current.name);
+                } else {
+                    switchOrg(orgs[0].id, orgs[0].name);
+                }
+            }
+        } catch (err) {
+            console.error("Failed to fetch user organizations", err);
+        } finally {
+            setLoadingOrgsList(false);
+        }
+    };
+
+    useEffect(() => {
+        if (token) {
+            fetchUserOrgs();
+        }
+    }, [token]);
 
     const fetchProjects = async () => {
         if (!token || !activeOrgId) {
@@ -57,6 +87,7 @@ export function App() {
             showToast(`Organization "${newOrgName}" created!`, 'success');
             switchOrg(res.data.id, res.data.name);
             setNewOrgName('');
+            await fetchUserOrgs();
         } catch (err) {
             showToast(err.message, 'error');
         } finally {
@@ -86,14 +117,23 @@ export function App() {
             <Navbar
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
-                onOrgCreated={(newOrg) => {
+                userOrgs={userOrgs}
+                onOrgCreated={async (newOrg) => {
+                    await fetchUserOrgs();
                     fetchProjects();
                 }}
                 onToast={showToast}
             />
 
-            {/* If no organization is selected yet */}
-            {!activeOrgId ? (
+            {/* If loading organizations */}
+            {loadingOrgsList ? (
+                <main className="flex-1 flex items-center justify-center p-6 bg-slate-950">
+                    <div className="text-slate-400 text-sm flex items-center gap-3">
+                        <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                        <span>Loading your workspaces...</span>
+                    </div>
+                </main>
+            ) : !activeOrgId ? (
                 <main className="flex-1 flex items-center justify-center p-6 bg-slate-950">
                     <div className="max-w-md w-full p-8 rounded-2xl bg-slate-900 border border-slate-800 text-center shadow-2xl">
                         <div className="w-12 h-12 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 mx-auto mb-4">

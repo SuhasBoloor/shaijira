@@ -42,6 +42,7 @@ export const api = {
 
     // Organizations
     createOrg: (name) => request('/org', { method: 'POST', body: JSON.stringify({ name }) }),
+    getUserOrgs: () => request('/org'),
 
     // Projects
     getProjects: () => request('/project'),

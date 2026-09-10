@@ -13,9 +13,10 @@ import {
     ChevronDown
 } from 'lucide-react';
 
-export function Navbar({ activeTab, setActiveTab, onOrgCreated, onToast }) {
+export function Navbar({ activeTab, setActiveTab, userOrgs = [], onOrgCreated, onToast }) {
     const { user, activeOrgId, activeOrgName, isSuperAdmin, logout, switchOrg } = useAuth();
     const [showNewOrgModal, setShowNewOrgModal] = useState(false);
+    const [showOrgDropdown, setShowOrgDropdown] = useState(false);
     const [newOrgName, setNewOrgName] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -50,20 +51,77 @@ export function Navbar({ activeTab, setActiveTab, onOrgCreated, onToast }) {
 
                     <div className="h-5 w-px bg-slate-800" />
 
-                    {/* Active Organization */}
-                    <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700/60 text-slate-200 text-xs font-medium">
-                            <Building2 className="w-3.5 h-3.5 text-blue-400" />
-                            <span>{activeOrgName || (activeOrgId ? 'Active Org' : 'No Organization Selected')}</span>
+                    {/* Active Organization Switcher Dropdown */}
+                    <div className="relative">
+                        <div className="flex items-center gap-1.5">
+                            <button
+                                onClick={() => setShowOrgDropdown(!showOrgDropdown)}
+                                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 text-slate-200 text-xs font-medium transition"
+                            >
+                                <Building2 className="w-3.5 h-3.5 text-blue-400" />
+                                <span className="max-w-[130px] truncate">{activeOrgName || 'Select Workspace'}</span>
+                                <ChevronDown className="w-3.5 h-3.5 text-slate-400 ml-1" />
+                            </button>
+
+                            <button
+                                onClick={() => setShowNewOrgModal(true)}
+                                className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white border border-slate-700/60 transition"
+                                title="Create New Workspace"
+                            >
+                                <Plus className="w-3.5 h-3.5" />
+                            </button>
                         </div>
 
-                        <button
-                            onClick={() => setShowNewOrgModal(true)}
-                            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white border border-slate-700/60 transition"
-                            title="Create New Organization"
-                        >
-                            <Plus className="w-3.5 h-3.5" />
-                        </button>
+                        {/* Dropdown Menu */}
+                        {showOrgDropdown && (
+                            <div className="absolute left-0 mt-2 w-56 rounded-xl bg-slate-900 border border-slate-800 shadow-2xl p-1.5 z-50">
+                                <div className="text-[10px] font-semibold text-slate-400 px-2.5 py-1 uppercase tracking-wider">
+                                    Your Workspaces
+                                </div>
+                                <div className="max-h-48 overflow-y-auto space-y-0.5">
+                                    {userOrgs.map((org) => (
+                                        <button
+                                            key={org.id}
+                                            onClick={() => {
+                                                switchOrg(org.id, org.name);
+                                                setShowOrgDropdown(false);
+                                            }}
+                                            className={`w-full text-left px-2.5 py-2 rounded-lg text-xs flex items-center justify-between transition ${
+                                                org.id === activeOrgId
+                                                    ? 'bg-blue-600/20 text-blue-300 font-semibold border border-blue-500/30'
+                                                    : 'text-slate-300 hover:bg-slate-800'
+                                            }`}
+                                        >
+                                            <div className="flex items-center gap-2 truncate">
+                                                <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                                <span className="truncate">{org.name}</span>
+                                            </div>
+                                            {org.id === activeOrgId && (
+                                                <div className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
+                                            )}
+                                        </button>
+                                    ))}
+                                    {userOrgs.length === 0 && (
+                                        <div className="px-2.5 py-2 text-xs text-slate-500 text-center">
+                                            No workspaces found
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="border-t border-slate-800 my-1" />
+
+                                <button
+                                    onClick={() => {
+                                        setShowOrgDropdown(false);
+                                        setShowNewOrgModal(true);
+                                    }}
+                                    className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs text-blue-400 hover:bg-blue-600/10 flex items-center gap-2 transition"
+                                >
+                                    <Plus className="w-3.5 h-3.5" />
+                                    <span>Create Workspace</span>
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
 

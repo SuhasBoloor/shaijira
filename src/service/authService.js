@@ -34,7 +34,8 @@ async function login(username, password){
 
     return {
         id: user.id,
-        username:user.username,
+        username: user.username,
+        isSuperAdmin: user.isSuperAdmin || false,
         token
     }
 }
