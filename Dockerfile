@@ -28,7 +28,7 @@ RUN rm -rf client/node_modules
 # 7. Make start.sh executable
 RUN chmod +x start.sh
 
-EXPOSE 3000
+EXPOSE 10000 3000
 
 CMD ["./start.sh"]
 
