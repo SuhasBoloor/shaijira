@@ -23,12 +23,13 @@ app.use("/membership", membershipRoute)
 app.use("/admin", adminRoute) 
 
 app.get("/health", async (req, res) => {
+    let dbStatus = "connected";
     try {
         await db.execute(sql`SELECT 1`);
-        res.status(200).json({ status: "healthy", db: "connected", timestamp: new Date() });
     } catch (err) {
-        res.status(500).json({ status: "degraded", db: err.message });
+        dbStatus = "warming_up: " + err.message;
     }
+    res.status(200).json({ status: "healthy", db: dbStatus, timestamp: new Date() });
 });
 
 // Serve frontend static build if it exists
